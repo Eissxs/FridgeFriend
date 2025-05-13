@@ -1,184 +1,190 @@
 # FridgeFriend Developer Setup Guide
 
-This guide provides detailed instructions for setting up the FridgeFriend development environment. While this is a college project, we maintain professional development practices to ensure code quality and consistent development experience.
+## Project Context
+This is an ITEL315 iOS Development course project, built with professional development practices in mind. While it's a learning project, I've tried to incorporate industry-standard practices where possible.
 
-## Prerequisites
+## Quick Start
 
-### Required Software
-- Xcode 15.0 or later
+### Prerequisites
+- Xcode 15.0+
 - iOS 17.0 SDK
+- macOS Sonoma 14.0+ (recommended)
 - Git
 - Swift 5.0+
-- macOS Sonoma 14.0+ (recommended)
 
-### Apple Developer Account
-- A free Apple Developer account is sufficient for development
-- Full Apple Developer Program membership ($99/year) required only for App Store deployment
+### Getting Started
 
-## Initial Setup
-
-### 1. Environment Setup
+1. **Clone & Setup**
 ```bash
-# Check Xcode command line tools installation
-xcode-select --install
-
-# Verify Swift version
-swift --version
-
-# Check Git installation
-git --version
-```
-
-### 2. Repository Setup
-```bash
-# Clone the repository
+# Clone the repo
 git clone https://github.com/Eissxs/FridgeFriend.git
-
-# Navigate to project directory
 cd FridgeFriend
 
-# Initialize Git LFS (if needed for large assets)
-git lfs install
+# Open in Xcode
+open FridgeFriend.xcodeproj
 ```
 
-### 3. Project Configuration
-1. Open `FridgeFriend.xcodeproj` in Xcode
-2. Select your development team in project settings (if available)
-3. Update the Bundle Identifier if needed
-4. Ensure the deployment target is set to iOS 17.0
+2. **First Build**
+- Select your development team in Xcode
+- Update bundle identifier if needed
+- Build (⌘B) and run (⌘R)
+
+## Project Structure
+
+```
+FridgeFriend/
+├── Views/              # SwiftUI views (currently tightly coupled)
+├── ViewModels/         # Business logic (needs DI implementation)
+├── Models/             # Data models and CoreData entities
+├── Utilities/          # Helper functions
+└── Resources/          # Assets and configurations
+```
+
+> **Future Improvement**: Planning to implement proper Clean Architecture with better separation of concerns.
+
+## Key Features & Implementation Notes
+
+### CoreData Integration
+```swift
+// Current implementation in Persistence.swift
+// Note: This is a basic setup, could be improved with repository pattern
+class PersistenceController {
+    static let shared = PersistenceController()
+    let container: NSPersistentContainer
+    // ... rest of implementation
+}
+```
+
+### Vision Framework Usage
+- Currently using basic OCR
+- Direct Vision framework calls (could be abstracted better)
+- Limited error handling (to be improved)
+
+### Speech Recognition
+- Basic implementation
+- Permission handling needs improvement
+- Limited offline capabilities
+
+## Known Limitations & TODOs
+
+### Current Limitations
+1. No dependency injection (using singletons)
+2. Limited test coverage
+3. Basic error handling
+4. Tight coupling in some components
+
+### Planned Improvements
+- [ ] Implement proper DI container
+- [ ] Add basic unit tests
+- [ ] Improve error handling
+- [ ] Add repository pattern
+- [ ] Implement proper navigation system
 
 ## Development Workflow
 
-### Building the Project
-1. Select your target device/simulator
-2. Build the project (⌘B)
-3. Run the project (⌘R)
+### Building & Running
+1. Open `FridgeFriend.xcodeproj`
+2. Select your target device/simulator
+3. Run with ⌘R
 
-### Core Data Development
-- The data model is located in `FridgeFriend.xcdatamodeld`
-- Always create a backup before modifying the data model
-- Test migrations thoroughly if you modify the schema
+### Common Issues & Solutions
 
-### Working with Vision & Speech Frameworks
+#### 1. CoreData Errors
 ```swift
-// Required import statements
-import Vision
-import Speech
-
-// Remember to add usage descriptions in Info.plist:
-// NSCameraUsageDescription
-// NSPhotoLibraryUsageDescription
-// NSSpeechRecognitionUsageDescription
-// NSMicrophoneUsageDescription
+// If you see this error:
+// "Failed to load model named FridgeFriend"
+// Check: Is the .xcdatamodeld file included in target?
 ```
 
-## Testing
+#### 2. Permission Issues
+- Camera access fails? Check Info.plist entries
+- Speech recognition not working? Verify microphone permissions
 
-### Running Tests
+## Testing (Current State)
+
+> **Note**: Testing is minimal at this stage. Here's how to run what we have:
+
 ```bash
-# Run tests from command line
+# From terminal:
 xcodebuild test -scheme FridgeFriend -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0'
 
-# Or use Xcode's Test Navigator (⌘6)
+# Or in Xcode:
+# Use ⌘U to run tests
 ```
 
-### Test Coverage
-- Current test coverage is minimal (educational project)
-- Focus on critical path testing when adding new features
-- UI tests are optional but recommended for main user flows
+## Debugging Tips
 
-## Debugging
+### Xcode Configuration
+- Enable "All Runtime Issues" in debug navigator
+- Use Memory Graph for detecting retain cycles
+- Console filtering for relevant logs
 
-### Common Issues
-1. **CoreData Errors**
-   - Check entity relationships
-   - Verify attribute types
-   - Ensure proper error handling
+### Common Debug Scenarios
+1. **UI Not Updating**
+   - Check @Published properties
+   - Verify ObservableObject conformance
+   - Check view hierarchy
 
-2. **Permission Issues**
-   - Verify Info.plist entries
-   - Check permission request timing
-   - Test on physical devices
+2. **CoreData Issues**
+   - Enable SQL debug logging
+   - Check fetch request predicates
+   - Verify save context calls
 
-3. **Vision Framework**
-   - Test with various image types
-   - Handle poor lighting conditions
-   - Consider performance impact
+## Git Workflow
 
-### Development Tools
-- Xcode Memory Debugger
-- Instruments for performance profiling
-- Console.app for device logs
-
-## Code Style Guidelines
-
-### Swift Style
-- Follow Swift API Design Guidelines
-- Use SwiftLint for consistency (optional)
-- Maintain clear documentation comments
-
-### Project Structure
-```
-FridgeFriend/
-├── Views/          # SwiftUI views
-├── Models/         # Data models
-├── ViewModels/     # Business logic
-├── Utilities/      # Helper functions
-└── Resources/      # Assets, plists
-```
-
-## Contribution Guidelines
-
-### Git Workflow
 ```bash
-# Create feature branch
-git checkout -b feature/your-feature-name
+# Feature development
+git checkout -b feature/your-feature
+# Make changes
+git commit -m "feat: describe your changes"
+git push origin feature/your-feature
 
-# Make commits with clear messages
-git commit -m "feat: add item expiry notification"
-
-# Push changes
-git push origin feature/your-feature-name
+# For fixes
+git checkout -b fix/issue-description
 ```
 
-### Pull Request Process
-1. Update documentation if needed
-2. Test your changes thoroughly
-3. Request review from maintainers
-4. Address feedback promptly
+## Privacy & Permissions
 
-## Performance Considerations
+Required in Info.plist:
+```xml
+<key>NSCameraUsageDescription</key>
+<string>For scanning food items</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>For voice commands</string>
+<!-- Add others as needed -->
+```
 
-### Memory Management
-- Use instruments to profile memory usage
-- Implement proper cleanup in view lifecycles
-- Be mindful of image caching
+## Resources & Learning Materials
 
-### Battery Usage
-- Optimize camera and speech recognition usage
-- Implement proper background task handling
-- Test on physical devices
+### SwiftUI
+- [Apple SwiftUI Tutorials](https://developer.apple.com/tutorials/swiftui)
+- [Hacking with Swift](https://www.hackingwithswift.com)
 
-## Resources
+### Vision Framework
+- [Vision Framework Documentation](https://developer.apple.com/documentation/vision)
 
-### Documentation
-- [Swift Documentation](https://swift.org/documentation/)
-- [Apple Developer Documentation](https://developer.apple.com/documentation/)
-- [SwiftUI Tutorials](https://developer.apple.com/tutorials/swiftui)
+### CoreData
+- [Core Data Programming Guide](https://developer.apple.com/documentation/coredata)
 
-### Tools
-- [Xcode](https://developer.apple.com/xcode/)
-- [Swift Package Manager](https://swift.org/package-manager/)
+## Future Development Roadmap
 
-## Support
+### Phase 1 (Current)
+- Basic MVVM implementation
+- Core features working
+- Minimal testing
 
-For questions or issues:
-- Open an issue on GitHub
-- Check existing documentation
-- Contact project maintainers
+### Phase 2 (Planned)
+- Implement DI
+- Add repository pattern
+- Basic unit tests
 
-## Note on Project Scope
+### Phase 3 (Future)
+- Clean Architecture
+- Comprehensive testing
+- Performance optimization
 
-This is an educational project developed for ITEL315 – Elective iOS Development. While we maintain professional practices, some enterprise-level features and configurations are intentionally simplified or omitted to align with the course objectives.
+## Note to Contributors
+
+This is a learning project that aims to grow into something more professional. While it may not follow all enterprise patterns yet, I'm working on improving it. Feedback and suggestions are welcome!
 
 ---
